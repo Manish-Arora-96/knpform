@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KPO – Challan Entry</title>
+  <style>
+    body{font-family:Arial,sans-serif;padding:20px;}
+    h2{margin-bottom:10px;}
+    table{width:100%;border-collapse:collapse;margin-bottom:15px;}
+    th,td{border:1px solid #ccc;padding:6px;text-align:left;}
+    th{background:#f4f4f4;}
+    input,select{width:100%;box-sizing:border-box;padding:4px;}
+    .buttons{display:flex;justify-content:space-between;}
+    button, input[type=submit]{padding:6px 12px;}
+    #loadingPopup{position:fixed;top:0;left:0;width:100vw;height:100vh;
+      background:rgba(0,0,0,0.6);display:none;align-items:center;
+      justify-content:center;color:#fff;font-size:18px;z-index:1000;}
+    .spinner{border:4px solid #f3f3f3;border-top:4px solid #3498db;
+      border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;}
+    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+  <button onclick="window.location='?page=index'">← Back to Hub</button>
+  <h2>Challan Entry</h2>
+  <form onsubmit="handleSubmit(event)">
+    <table id="tableBody">
+      <thead>
+        <tr>
+          <th>SR NO.</th>
+          <th>DATE</th>
+          <th>ROLL END TIME</th>
+          <th>SHIFT</th>
+          <th>OPERATOR</th>
+          <th>ROLL NO</th>
+          <th>WEIGHT</th>
+          <th>COUNT</th>
+          <th>BLEND</th>
+          <th>COLOUR</th>
+          <th>LOT NOS</th>
+          <th>FABRIC DESCRIPTION</th>
+          <th>GSM ON MC</th>
+          <th>REMARKS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input name="srNo" readonly></td>
+          <td><input type="date" name="date" max="" required></td>
+          <td><input type="time" name="rollEndTime" required></td>
+          <td>
+            <select name="shift" required>
+              <option value="">–Select–</option>
+              <option>Morning</option>
+              <option>Afternoon</option>
+              <option>Night</option>
+            </select>
+          </td>
+          <td><input name="operator" required></td>
+          <td><input name="rollNo" required></td>
+          <td><input type="number" name="weight" required></td>
+          <td><input name="count" required></td>
+          <td><input name="blend" required></td>
+          <td><input name="colour" required></td>
+          <td><input name="lotNos" required></td>
+          <td><input name="fabricDescription" required></td>
+          <td><input name="gsmOnMc" required></td>
+          <td><input name="remarks"></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="buttons">
+      <button type="button" onclick="addRow()">Add Row</button>
+      <input type="submit" value="Submit" id="submitBtn">
+      <button type="button" onclick="clearTable()">Clear</button>
+    </div>
+  </form>
+  
+  <div id="loadingPopup">
+    <div>
+      <div class="spinner"></div>
+      <p>Submitting, please wait…</p>
+    </div>
+  </div>
+  
+  <script>
+    // init max date
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelector('input[name="date"]').max = today;
+    
+    // auto‑number SR.NO
+    function updateSr() {
+      document.querySelectorAll('tbody tr').forEach((row,i)=>{
+        row.querySelector('input[name="srNo"]').value = i+1;
+      });
+    }
+    
+    // add a new empty row
+    function addRow(){
+      const tpl = document.querySelector('tbody tr');
+      const clone = tpl.cloneNode(true);
+      clone.querySelectorAll('input,select').forEach(el=>{
+        if (!el.readOnly) el.value = '';
+      });
+      tpl.parentNode.appendChild(clone);
+      updateSr();
+    }
+    
+    function clearTable(){
+      const body = document.querySelector('tbody');
+      body.innerHTML = '';
+      addRow();
+    }
+    
+    function showLoading(){document.getElementById('loadingPopup').style.display='flex';}
+    function hideLoading(){document.getElementById('loadingPopup').style.display='none';}
+    
+    function validate(){
+      return Array.from(document.querySelectorAll('tbody tr')).every(row=>
+        Array.from(row.querySelectorAll('input[required],select[required]')).every(i=>i.value)
+      );
+    }
+    
+    function handleSubmit(e){
+      e.preventDefault();
+      if (!validate()){
+        alert('Please fill all required fields.');
+        return;
+      }
+      showLoading();
+      document.getElementById('submitBtn').disabled = true;
+      
+      // gather data
+      const rows = Array.from(document.querySelectorAll('tbody tr')).map((row,i)=>({
+        srNo:            row.querySelector('input[name="srNo"]').value,
+        date:            row.querySelector('input[name="date"]').value,
+        rollEndTime:     row.querySelector('input[name="rollEndTime"]').value,
+        shift:           row.querySelector('select[name="shift"]').value,
+        operator:        row.querySelector('input[name="operator"]').value,
+        rollNo:          row.querySelector('input[name="rollNo"]').value,
+        weight:          row.querySelector('input[name="weight"]').value,
+        count:           row.querySelector('input[name="count"]').value,
+        blend:           row.querySelector('input[name="blend"]').value,
+        colour:          row.querySelector('input[name="colour"]').value,
+        lotNos:          row.querySelector('input[name="lotNos"]').value,
+        fabricDescription: row.querySelector('input[name="fabricDescription"]').value,
+        gsmOnMc:         row.querySelector('input[name="gsmOnMc"]').value,
+        remarks:         row.querySelector('input[name="remarks"]').value
+      }));
+      
+      google.script.run
+        .withSuccessHandler(msg=>{
+          alert(msg);
+          clearTable();
+          hideLoading();
+          document.getElementById('submitBtn').disabled = false;
+        })
+        .withFailureHandler(err=>{
+          alert('Error: '+err.message);
+          hideLoading();
+          document.getElementById('submitBtn').disabled = false;
+        })
+        .submitChallanData({ rowsData: rows });
+    }
+    
+    // initial setup
+    window.onload = ()=>{ clearTable(); updateSr(); };
+  </script>
+</body>
+</html>
