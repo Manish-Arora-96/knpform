@@ -12,8 +12,19 @@
     th,td{border:1px solid #ccc;padding:6px;text-align:left;}
     th{background:#f4f4f4;}
     input,select{width:100%;box-sizing:border-box;padding:4px;}
-    .buttons{display:flex;justify-content:space-between;}
-    button, input[type=submit]{padding:6px 12px;}
+    .buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .buttons button,
+  .buttons input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    box-sizing: border-box;
+  }
     #loadingPopup{position:fixed;top:0;left:0;width:100vw;height:100vh;
       background:rgba(0,0,0,0.6);display:none;align-items:center;
       justify-content:center;color:#fff;font-size:18px;z-index:1000;}
