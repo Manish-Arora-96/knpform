@@ -2,7 +2,9 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <base target="_top">
+    <base target="_top"
+        href="https://script.google.com/a/macros/confidenceclothing.com/s/AKfycbzgSj0MzIwE5BbgSlWfJlWImS1MNcawFAPrL1uhousPbrv3Vamm9bnrtUyVQYKFwtG75Q/exec">
+
     <title>KNP ORDER SHEET</title>
     <style>
       body { font-family: Arial, sans-serif; padding: 20px; }
@@ -74,7 +76,7 @@
     </style>
   </head>
   <body>
-    
+    <button onclick="window.location='?page=index'">← Back to Hub</button>
     <div class="container">
       <h1>KPO- KNIT PLAN ORDER</h1>
       
